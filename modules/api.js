@@ -1,51 +1,46 @@
 import axios from "axios";
+const { Client } = require("@notionhq/client");
 
 const notionKey = "secret_1QFPDVV8hM9UvPW8CFUmRkAFLpBsHqDlR47MINrvoX0";
 const notionDatabaseKey = "24294139ef8d468e999e688f3131a8e3";
+const notion = new Client({
+  auth: notionKey,
+  baseUrl:
+    "https://square-bread-ed1d.danbrother.workers.dev/?https://api.notion.com",
+});
 
 export default class Api {
   static async NotiongetItemToday() {
-    const data = await axios.post(
-      `https://square-bread-ed1d.danbrother.workers.dev/?https://api.notion.com/v1/databases/${notionDatabaseKey}/query`,
-      {
+    const databaseId = notionDatabaseKey;
+    try {
+      const response = await notion.databases.query({
+        database_id: databaseId,
         filter: {
           property: "작업 날짜",
           date: {
             equals: new Date().toISOString().split("T")[0],
           },
         },
-      },
-      {
-        headers: {
-          "Notion-Version": "2022-06-28",
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${notionKey}`,
-        },
-      }
-    );
-    return data.data;
-  }
-
-  static async NotionUpdateCheck() {
-    const options = {
-      method: "PATCH",
-      url: "https://api.notion.com/v1/databases/" + notionDatabaseKey,
-      headers: {
-        accept: "application/json",
-        "Notion-Version": "2022-06-28",
-        "content-type": "application/json",
-      },
-      data: { properties: "string" },
-    };
-
-    axios
-      .request(options)
-      .then(function (response) {
-        console.log(response.data);
-      })
-      .catch(function (error) {
-        console.error(error);
       });
+      return response;
+    } catch (error) {
+      console.log(error.body);
+    }
+  }
+  static async NotionUpdateComplit(id, check) {
+    try {
+      const response = await notion.pages.update({
+        page_id: id,
+        properties: {
+          "": {
+            checkbox: check,
+          },
+        },
+      });
+      console.log(response);
+    } catch (error) {
+      console.log(error.body);
+    }
   }
 
   static async UnsplashgetItem() {

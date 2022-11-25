@@ -1,6 +1,7 @@
 import Head from "next/head";
 import { useState, useEffect } from "react";
 import Api from "../modules/api";
+const { Client } = require("@notionhq/client");
 
 export default function Home() {
   const [background_img, setBackground_img] = useState(
@@ -47,13 +48,24 @@ export default function Home() {
       return notionData.results.map((item, i) => {
         return (
           <div key={i} className="Todo_item">
-            <input type={"checkbox"} />
-            <div>{item.properties["이름"].title[0].plain_text}</div>
+            <input
+              id={item.id}
+              type={"checkbox"}
+              onClick={async () => {
+                await Api.NotionUpdateComplit(
+                  item.id,
+                  !item.properties[""].checkbox
+                );
+                setNotionData(await Api.NotiongetItemToday());
+              }}
+              defaultChecked={item.properties[""].checkbox}
+            />
+            <a href={item.url}>{item.properties["이름"].title[0].plain_text}</a>
           </div>
         );
       });
     }
-    return <div>loading...</div>;
+    return <div>Loding!</div>;
   }
   function RandomGoodMsg() {
     let msg = ["Good!", "Nice!", "very good!", "very nice!"];
@@ -115,8 +127,6 @@ export default function Home() {
             text-shadow: 0 1px 9px rgb(0 0 0 / 20%);
           }
           button {
-            -webkit-appearance: none;
-            -moz-appearance: none;
             appearance: none;
 
             background: var(#28a745);
@@ -166,11 +176,18 @@ export default function Home() {
             font-family: "Pretendard-Regular";
             font-weight: 500;
           }
-          #check-btn {
-            display: none;
+          input[id="cb1"] + label {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #bcbcbc;
+            cursor: pointer;
           }
-          #check-btn:checked ~ .menubars {
-            display: block;
+          input[id="cb1"]:checked + label {
+            background-color: #666666;
+          }
+          input[id="cb1"] {
+            display: none;
           }
           .menubars {
             display: none;
