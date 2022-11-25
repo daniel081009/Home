@@ -1,0 +1,57 @@
+.main {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-flow: column;
+
+  color: aliceblue;
+  text-shadow: 0 1px 5px rgb(0 0 0 / 30%);
+}
+.Top {
+  height: 10vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.center {
+  height: 80vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.Time {
+  font-size: 3rem;
+  font-weight: 700;
+  font-family: "SBAggroB";
+}
+.goodmsg {
+  font-size: 1.5rem;
+  font-weight: 400;
+  font-family: "S-CoreDream-3Light";
+}
+.Down {
+  height: 10vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.backimg {
+  background-color: transparent;
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+}
+@font-face {
+  font-family: "SBAggroB";
+  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2108@1.1/SBAggroB.woff")
+    format("woff");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "S-CoreDream-3Light";
+  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_six@1.2/S-CoreDream-3Light.woff")
+    format("woff");
+  font-weight: normal;
+  font-style: normal;
+}
