@@ -16,6 +16,7 @@
     "postcss": "^8.4.19",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "react-icons": "^4.6.0",
     "react-live-clock": "^6.0.7",
     "react-player": "^2.11.0",
     "react-youtube": "^10.0.0"

@@ -1,7 +1,7 @@
 import Head from "next/head";
 import { useState, useEffect } from "react";
 import Api from "../modules/api";
-const { Client } = require("@notionhq/client");
+import { BiReset } from "react-icons/bi";
 
 export default function Home() {
   const [background_img, setBackground_img] = useState(
@@ -40,7 +40,7 @@ export default function Home() {
       currentTime();
       setGoodmsg(RandomGoodMsg());
       // setBackground_img(await Api.UnsplashgetItem());
-      setNotionData(await Api.NotiongetItemToday());
+      setNotionData(await Api.NotionTODOgetItemToday());
     };
   }, []);
   function PrintNotionDayList() {
@@ -49,10 +49,10 @@ export default function Home() {
         return (
           <div key={i} className="Todo_item">
             <input
-              id={item.id}
+              id="cb1"
               type={"checkbox"}
               onClick={async () => {
-                await Api.NotionUpdateComplit(
+                await Api.NotioTODOnUpdateComplit(
                   item.id,
                   !item.properties[""].checkbox
                 );
@@ -60,6 +60,7 @@ export default function Home() {
               }}
               defaultChecked={item.properties[""].checkbox}
             />
+            <label htmlFor="cb1"></label>{" "}
             <a href={item.url}>{item.properties["이름"].title[0].plain_text}</a>
           </div>
         );
@@ -102,7 +103,9 @@ export default function Home() {
         <div>
           <div className="worklist">{PrintNotionDayList()}</div>
         </div>
-        <div></div>
+        <div>
+          <BiReset></BiReset>
+        </div>
       </main>
       <style global jsx>
         {`
@@ -165,6 +168,7 @@ export default function Home() {
           }
           .Todo_item {
             display: flex;
+            margin-bottom: 1rem;
           }
           .time {
             font-size: 9rem;
@@ -176,20 +180,23 @@ export default function Home() {
             font-family: "Pretendard-Regular";
             font-weight: 500;
           }
+          a {
+            margin-left: 1rem;
+            color: black;
+            text-decoration: none;
+            font-size: 1.5rem;
+          }
           input[id="cb1"] + label {
             display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 2px solid #bcbcbc;
+            width: 25px;
+            height: 25px;
+            border: 2px solid #1e1e1e;
             cursor: pointer;
           }
           input[id="cb1"]:checked + label {
             background-color: #666666;
           }
           input[id="cb1"] {
-            display: none;
-          }
-          .menubars {
             display: none;
           }
           @font-face {

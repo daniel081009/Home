@@ -10,7 +10,7 @@ const notion = new Client({
 });
 
 export default class Api {
-  static async NotiongetItemToday() {
+  static async NotionTODOgetItemToday() {
     const databaseId = notionDatabaseKey;
     try {
       const response = await notion.databases.query({
@@ -27,7 +27,7 @@ export default class Api {
       console.log(error.body);
     }
   }
-  static async NotionUpdateComplit(id, check) {
+  static async NotioTODOnUpdateComplit(id, check) {
     try {
       const response = await notion.pages.update({
         page_id: id,
