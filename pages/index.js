@@ -1,7 +1,8 @@
 import Head from "next/head";
 import { useState, useEffect } from "react";
 import Api from "../modules/api";
-import { BiReset } from "react-icons/bi";
+import { BiReset, BiHomeAlt, BiSave } from "react-icons/bi";
+import { MdRemoveCircleOutline, MdQueueMusic } from "react-icons/md";
 
 export default function Home() {
   const [background_img, setBackground_img] = useState(
@@ -38,25 +39,34 @@ export default function Home() {
   useEffect(() => {
     return async () => {
       currentTime();
+      if (!localStorage.getItem("background_img_list")) {
+        localStorage.setItem("background_img_list", []);
+      }
       setGoodmsg(RandomGoodMsg());
-      // setBackground_img(await Api.UnsplashgetItem());
+      setBackground_img(await Api.ImgGet());
       setNotionData(await Api.NotionTODOgetItemToday());
+      setInterval(async () => {
+        setNotionData(await Api.NotiongetItemToday());
+      }, 1000 * 60 * 60);
+
+      console.log(await Api.NotionGet("57b0eb9f-2ac3-4764-9f57-5559b57614d8"));
     };
   }, []);
   function PrintNotionDayList() {
     if (notionData.results) {
+      let asd = [];
       return notionData.results.map((item, i) => {
+        console.log(item.properties.Project.relation[0].id);
         return (
           <div key={i} className="Todo_item">
             <input
               id="cb1"
               type={"checkbox"}
               onClick={async () => {
-                await Api.NotioTODOnUpdateComplit(
+                await Api.NotioTODOnUpdate(
                   item.id,
                   !item.properties[""].checkbox
                 );
-                setNotionData(await Api.NotiongetItemToday());
               }}
               defaultChecked={item.properties[""].checkbox}
             />
@@ -78,22 +88,7 @@ export default function Home() {
         <title>Home</title>
       </Head>
       <main className="background">
-        <div className="Music">
-          <button
-            onClick={() => {
-              setMusic_vi(music_vi == "none" ? "block" : "none");
-            }}
-          >
-            Player
-          </button>
-          <iframe
-            width="400"
-            height="300"
-            src="http://www.youtube.com/embed?listType=playlist&list=PLk04kbCQty9Lm8kTKMIjpXpAfo_XDmEXZ&autoplay=1"
-            style={{ display: music_vi }}
-            frameBorder="0"
-          ></iframe>
-        </div>
+        <div></div>
         <div className="center">
           <div className="Center_right">
             <div className="time">{time}</div>
@@ -103,8 +98,60 @@ export default function Home() {
         <div>
           <div className="worklist">{PrintNotionDayList()}</div>
         </div>
-        <div>
-          <BiReset></BiReset>
+        <div className="Music">
+          <iframe
+            width="400"
+            height="300"
+            src="http://www.youtube.com/embed?listType=playlist&list=PLk04kbCQty9Lm8kTKMIjpXpAfo_XDmEXZ&autoplay=1"
+            style={{ display: music_vi }}
+            frameBorder="0"
+          ></iframe>
+        </div>
+        <div className="TopDown">
+          <BiReset
+            onClick={async () => {
+              setBackground_img(await Api.UnsplashgetItem());
+            }}
+          ></BiReset>
+          <BiSave
+            onClick={async () => {
+              if (!localStorage.getItem("background_img_list")) {
+                let list = [];
+                list.push(background_img);
+                console.log(list, background_img);
+                localStorage.setItem(
+                  "background_img_list",
+                  JSON.stringify(list)
+                );
+              } else {
+                let list = JSON.parse(
+                  localStorage.getItem("background_img_list")
+                );
+                list.push(background_img);
+                console.log(list, background_img);
+                localStorage.setItem(
+                  "background_img_list",
+                  JSON.stringify(list)
+                );
+              }
+            }}
+          ></BiSave>
+          <MdRemoveCircleOutline
+            onClick={() => {
+              // delete background_img_list item
+              let list = JSON.parse(
+                localStorage.getItem("background_img_list")
+              );
+              list.splice(list.indexOf(background_img), 1);
+              localStorage.setItem("background_img_list", JSON.stringify(list));
+            }}
+          ></MdRemoveCircleOutline>
+
+          <MdQueueMusic
+            onClick={() => {
+              setMusic_vi(music_vi == "none" ? "block" : "none");
+            }}
+          ></MdQueueMusic>
         </div>
       </main>
       <style global jsx>
@@ -127,7 +174,8 @@ export default function Home() {
             flex-flow: column;
             align-items: center;
             justify-content: space-between;
-            text-shadow: 0 1px 9px rgb(0 0 0 / 20%);
+            text-shadow: 0 1px 9px rgb(0 0 0 / 40%);
+            color: white;
           }
           button {
             appearance: none;
@@ -156,6 +204,9 @@ export default function Home() {
 
             transition: 0.5s;
           }
+          svg {
+            font-size: 3rem;
+          }
           .center {
             display: flex;
             align-items: center;
@@ -180,24 +231,19 @@ export default function Home() {
             font-family: "Pretendard-Regular";
             font-weight: 500;
           }
+
           a {
             margin-left: 1rem;
-            color: black;
+            color: rgb(255, 255, 255);
             text-decoration: none;
             font-size: 1.5rem;
           }
-          input[id="cb1"] + label {
+          input[id="cb1"] {
             display: inline-block;
             width: 25px;
             height: 25px;
             border: 2px solid #1e1e1e;
             cursor: pointer;
-          }
-          input[id="cb1"]:checked + label {
-            background-color: #666666;
-          }
-          input[id="cb1"] {
-            display: none;
           }
           @font-face {
             font-family: "Pretendard-Regular";

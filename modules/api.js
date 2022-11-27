@@ -2,7 +2,8 @@ import axios from "axios";
 const { Client } = require("@notionhq/client");
 
 const notionKey = "secret_1QFPDVV8hM9UvPW8CFUmRkAFLpBsHqDlR47MINrvoX0";
-const notionDatabaseKey = "24294139ef8d468e999e688f3131a8e3";
+const notionTODODatabaseKey = "24294139ef8d468e999e688f3131a8e3";
+
 const notion = new Client({
   auth: notionKey,
   baseUrl:
@@ -10,11 +11,20 @@ const notion = new Client({
 });
 
 export default class Api {
+  static async NotionGet(idpage) {
+    try {
+      const response = await notion.pages.retrieve({
+        page_id: idpage,
+      });
+      return response;
+    } catch (error) {
+      console.log(error);
+    }
+  }
   static async NotionTODOgetItemToday() {
-    const databaseId = notionDatabaseKey;
     try {
       const response = await notion.databases.query({
-        database_id: databaseId,
+        database_id: notionTODODatabaseKey,
         filter: {
           property: "작업 날짜",
           date: {
@@ -27,7 +37,7 @@ export default class Api {
       console.log(error.body);
     }
   }
-  static async NotioTODOnUpdateComplit(id, check) {
+  static async NotioTODOnUpdate(id, check) {
     try {
       const response = await notion.pages.update({
         page_id: id,
@@ -41,6 +51,13 @@ export default class Api {
     } catch (error) {
       console.log(error.body);
     }
+  }
+  static async ImgGet() {
+    let list = JSON.parse(localStorage.getItem("background_img_list"));
+    if (list) {
+      return list[Math.floor(Math.random() * list.length)];
+    }
+    return [];
   }
 
   static async UnsplashgetItem() {
