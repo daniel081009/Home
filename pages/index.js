@@ -1,14 +1,14 @@
 import Head from "next/head";
 import { useState, useEffect } from "react";
 import Api from "../modules/api";
-import { BiReset, BiHomeAlt, BiSave } from "react-icons/bi";
+import { BiReset, BiSave } from "react-icons/bi";
 import { MdRemoveCircleOutline, MdQueueMusic } from "react-icons/md";
 
 export default function Home() {
   const [background_img, setBackground_img] = useState(
     "https://images.unsplash.com/photo-1533090161767-e6ffed986c88?crop=entropy&cs=tinysrgb&fm=jpg&ixid=MnwzODAzMDd8MHwxfHJhbmRvbXx8fHx8fHx8fDE2NjgzOTk0MDU&ixlib=rb-4.0.3&q=80"
   );
-  const [notionData, setNotionData] = useState([]);
+  const [notionData, setNotionData] = useState({});
   const [music_vi, setMusic_vi] = useState("none");
   const [goodmsg, setGoodmsg] = useState("");
   const [time, setTime] = useState("");
@@ -44,19 +44,17 @@ export default function Home() {
       }
       setGoodmsg(RandomGoodMsg());
       setBackground_img(await Api.ImgGet());
+
       setNotionData(await Api.NotionTODOgetItemToday());
       setInterval(async () => {
-        setNotionData(await Api.NotiongetItemToday());
+        setNotionData(await Api.NotionTODOgetItemToday());
       }, 1000 * 60 * 60);
-
-      console.log(await Api.NotionGet("57b0eb9f-2ac3-4764-9f57-5559b57614d8"));
     };
   }, []);
+
   function PrintNotionDayList() {
-    if (notionData.results) {
-      let asd = [];
+    if (notionData && notionData.results) {
       return notionData.results.map((item, i) => {
-        console.log(item.properties.Project.relation[0].id);
         return (
           <div key={i} className="Todo_item">
             <input
@@ -118,7 +116,6 @@ export default function Home() {
               if (!localStorage.getItem("background_img_list")) {
                 let list = [];
                 list.push(background_img);
-                console.log(list, background_img);
                 localStorage.setItem(
                   "background_img_list",
                   JSON.stringify(list)
@@ -128,7 +125,6 @@ export default function Home() {
                   localStorage.getItem("background_img_list")
                 );
                 list.push(background_img);
-                console.log(list, background_img);
                 localStorage.setItem(
                   "background_img_list",
                   JSON.stringify(list)
