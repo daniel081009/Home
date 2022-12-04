@@ -1,257 +1,105 @@
 import Head from "next/head";
 import { useState, useEffect } from "react";
-import Api from "../modules/api";
-import { BiReset, BiSave } from "react-icons/bi";
-import { MdRemoveCircleOutline, MdQueueMusic } from "react-icons/md";
+import Api from "./api/api";
+// import schedule from "node-schedule";
+import firstpage from "../modules/firstpage";
+import secondpage from "../modules/secondpage";
+import Three from "../modules/Three";
 
-export default function Home() {
-  const [background_img, setBackground_img] = useState(
-    "https://images.unsplash.com/photo-1533090161767-e6ffed986c88?crop=entropy&cs=tinysrgb&fm=jpg&ixid=MnwzODAzMDd8MHwxfHJhbmRvbXx8fHx8fHx8fDE2NjgzOTk0MDU&ixlib=rb-4.0.3&q=80"
-  );
-  const [notionData, setNotionData] = useState({});
-  const [music_vi, setMusic_vi] = useState("none");
-  const [goodmsg, setGoodmsg] = useState("");
-  const [time, setTime] = useState("");
-
-  let timeer = null;
-  function currentTime() {
-    const date = new Date();
-    let hh = date.getHours();
-    let mm = date.getMinutes();
-    let ss = date.getSeconds();
-    let session = "AM";
-
-    if (hh > 12) {
-      session = "PM";
-    }
-
-    hh = hh < 10 ? "0" + hh : hh;
-    mm = mm < 10 ? "0" + mm : mm;
-    setTime(hh + ":" + mm + " " + session);
-    if (time == "") {
-      timeer = setTimeout(() => currentTime(), 60000 - ss * 1000);
-    } else {
-      clearInterval(timeer);
-      timeer = setTimeout(() => currentTime(), 60000 - ss * 1000);
-    }
-  }
-
+export default function Hoem() {
+  const [imglist, setimglist] = useState([]);
+  const [load, setload] = useState(false);
   useEffect(() => {
     return async () => {
-      currentTime();
-      if (!localStorage.getItem("background_img_list")) {
-        localStorage.setItem("background_img_list", []);
+      if (!localStorage.getItem("imglist")) {
+        localStorage.setItem("imglist", JSON.stringify([]));
       }
-      setGoodmsg(RandomGoodMsg());
-      setBackground_img(await Api.ImgGet());
-
-      setNotionData(await Api.NotionTODOgetItemToday());
-      setInterval(async () => {
-        setNotionData(await Api.NotionTODOgetItemToday());
-      }, 1000 * 60 * 60);
+      let temp = JSON.parse(localStorage.getItem("imglist"));
+      setimglist(temp[Math.floor(Math.random() * temp.length)]);
+      console.log("img load", temp);
     };
   }, []);
-
-  function PrintNotionDayList() {
-    if (notionData && notionData.results) {
-      return notionData.results.map((item, i) => {
-        return (
-          <div key={i} className="Todo_item">
-            <input
-              id="cb1"
-              type={"checkbox"}
-              onClick={async () => {
-                await Api.NotioTODOnUpdate(
-                  item.id,
-                  !item.properties[""].checkbox
-                );
-              }}
-              defaultChecked={item.properties[""].checkbox}
-            />
-            <label htmlFor="cb1"></label>{" "}
-            <a href={item.url}>{item.properties["이름"].title[0].plain_text}</a>
-          </div>
-        );
-      });
-    }
-    return <div>Loding!</div>;
+  async function imgrand() {
+    let list = await Api.UnsplashgetItem();
+    list = list.data.map((item) => {
+      return item.links.download;
+    });
+    setimglist(list);
+    console.log(list);
   }
-  function RandomGoodMsg() {
-    let msg = ["Good!", "Nice!", "very good!", "very nice!"];
-    return msg[Math.floor(Math.random() * msg.length)];
+  async function imgsave() {
+    let list = JSON.parse(localStorage.getItem("imglist"));
+    list.push(imglist);
+    localStorage.setItem("imglist", JSON.stringify(list));
   }
+  async function imgdelete() {
+    let list = JSON.parse(localStorage.getItem("imglist"));
+    list = list.filter((item) => {
+      return item != imglist;
+    });
+    localStorage.setItem("imglist", JSON.stringify(list));
+    setimglist([]);
+  }
+  const handleScroll = (e) => {
+    setload(true);
+  };
   return (
     <>
       <Head>
         <title>Home</title>
       </Head>
-      <main className="background">
-        <div></div>
-        <div className="center">
-          <div className="Center_right">
-            <div className="time">{time}</div>
-            <div className="goodmsg">{goodmsg}</div>
-          </div>
-        </div>
-        <div>
-          <div className="worklist">{PrintNotionDayList()}</div>
-        </div>
-        <div className="Music">
-          <iframe
-            width="400"
-            height="300"
-            src="http://www.youtube.com/embed?listType=playlist&list=PLk04kbCQty9Lm8kTKMIjpXpAfo_XDmEXZ&autoplay=1"
-            style={{ display: music_vi }}
-            frameBorder="0"
-          ></iframe>
-        </div>
-        <div className="TopDown">
-          <BiReset
-            onClick={async () => {
-              setBackground_img(await Api.UnsplashgetItem());
-            }}
-          ></BiReset>
-          <BiSave
-            onClick={async () => {
-              if (!localStorage.getItem("background_img_list")) {
-                let list = [];
-                list.push(background_img);
-                localStorage.setItem(
-                  "background_img_list",
-                  JSON.stringify(list)
-                );
-              } else {
-                let list = JSON.parse(
-                  localStorage.getItem("background_img_list")
-                );
-                list.push(background_img);
-                localStorage.setItem(
-                  "background_img_list",
-                  JSON.stringify(list)
-                );
-              }
-            }}
-          ></BiSave>
-          <MdRemoveCircleOutline
-            onClick={() => {
-              // delete background_img_list item
-              let list = JSON.parse(
-                localStorage.getItem("background_img_list")
-              );
-              list.splice(list.indexOf(background_img), 1);
-              localStorage.setItem("background_img_list", JSON.stringify(list));
-            }}
-          ></MdRemoveCircleOutline>
-
-          <MdQueueMusic
-            onClick={() => {
-              setMusic_vi(music_vi == "none" ? "block" : "none");
-            }}
-          ></MdQueueMusic>
-        </div>
-      </main>
-      <style global jsx>
+      <div className="maincontainer" onScroll={handleScroll}>
+        {firstpage(imglist[0])}
+        {secondpage(imglist[1], load)}
+        {Three(imglist[2], load)}
+        <main
+          className="background"
+          style={{
+            backgroundImage: `url('${imglist[1]}')`,
+          }}
+        >
+          <button onClick={imgrand} type="button" className="btn btn-dark">
+            Rand
+          </button>
+          <button onClick={imgsave} type="button" className="btn btn-dark">
+            Save
+          </button>
+          <button onClick={imgdelete} type="button" className="btn btn-dark">
+            Delete
+          </button>
+        </main>
+      </div>
+      <style jsx global>
         {`
-          .Music {
+          body {
+            width: 100vw;
+            margin: 0;
+            padding: 0;
+          }
+          .maincontainer {
+            width: 100vw;
+            height: 100vh;
             display: flex;
-            flex-flow: column;
-            align-items: center;
-            justify-content: center;
+            scroll-snap-type: x mandatory;
+            overflow-x: scroll;
           }
           .background {
-            background-image: url(${background_img});
             background-size: cover;
             background-repeat: no-repeat;
             background-position: center;
           }
           main {
             height: 100vh;
+            scroll-snap-align: center;
+            flex: 0 0 100vw;
+
             display: flex;
             flex-flow: column;
             align-items: center;
-            justify-content: space-between;
+            justify-content: center;
+
+            color: white;
             text-shadow: 0 1px 9px rgb(0 0 0 / 40%);
-            color: white;
-          }
-          button {
-            appearance: none;
-
-            background: var(#28a745);
-            color: var(#218838);
-
-            margin: 0;
-            padding: 0.5rem 1rem;
-
-            font-size: 1rem;
-            font-weight: 400;
-            text-align: center;
-            text-decoration: none;
-
-            border: none;
-            border-radius: 4px;
-
-            display: inline-block;
-            width: auto;
-
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
-              0 2px 4px -1px rgba(0, 0, 0, 0.06);
-
-            cursor: pointer;
-
-            transition: 0.5s;
-          }
-          svg {
-            font-size: 3rem;
-          }
-          .center {
-            display: flex;
-            align-items: center;
-            color: white;
-          }
-          .Center_right {
-            display: flex;
-            flex-flow: column;
-            align-items: center;
-          }
-          .Todo_item {
-            display: flex;
-            margin-bottom: 1rem;
-          }
-          .time {
-            font-size: 9rem;
-            font-family: "Nanum Gothic";
-            font-weight: 700;
-          }
-          .goodmsg {
-            font-size: 4rem;
-            font-family: "Pretendard-Regular";
-            font-weight: 500;
-          }
-
-          a {
-            margin-left: 1rem;
-            color: rgb(255, 255, 255);
-            text-decoration: none;
-            font-size: 1.5rem;
-          }
-          input[id="cb1"] {
-            display: inline-block;
-            width: 25px;
-            height: 25px;
-            border: 2px solid #1e1e1e;
-            cursor: pointer;
-          }
-          @font-face {
-            font-family: "Pretendard-Regular";
-            src: url("https://cdn.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff")
-              format("woff");
-            font-weight: 400;
-            font-style: normal;
-          }
-          @import url(//fonts.googleapis.com/earlyaccess/nanumgothic.css);
-
-          .nanumgothic * {
-            font-family: "Nanum Gothic", sans-serif;
           }
           @font-face {
             font-family: "SBAggroB";
@@ -260,8 +108,21 @@ export default function Home() {
             font-weight: normal;
             font-style: normal;
           }
+          @font-face {
+            font-family: "S-CoreDream-3Light";
+            src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_six@1.2/S-CoreDream-3Light.woff")
+              format("woff");
+            font-weight: normal;
+            font-style: normal;
+          }
         `}
       </style>
+      <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+        integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65"
+        crossOrigin="anonymous"
+      ></link>
     </>
   );
 }

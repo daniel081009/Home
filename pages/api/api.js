@@ -112,7 +112,7 @@ export default class Api {
     try {
       const result = await axios({
         url:
-          "https://api.unsplash.com/photos/random?query=office&client_id=" +
+          "https://api.unsplash.com/photos/random?query=nature&count=3&client_id=" +
           unsplashKey,
         data: {
           topics: "background",
@@ -121,7 +121,7 @@ export default class Api {
         },
         method: "GET",
       });
-      return result.data.urls.full;
+      return result;
     } catch (error) {
       console.log(error);
     }
