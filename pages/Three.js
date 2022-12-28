@@ -16,7 +16,7 @@ export default function Three(backgroundurl, load) {
         setmusichistory(JSON.parse(localStorage.getItem("musichistory")));
       }
     };
-  }, []);
+  }, [load]);
   if (!load) {
     return;
   }

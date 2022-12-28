@@ -96,7 +96,6 @@ export default class Api {
         },
       },
     });
-    console.log(response);
   }
 
   static async ImgGet() {

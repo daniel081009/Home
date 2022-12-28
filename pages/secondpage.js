@@ -1,29 +1,17 @@
 import { useEffect, useState } from "react";
-import Api from "../pages/api/api";
-
-async function sleep(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
+import Api from "../modules/api";
 export default function Secondpage(backgroundurl, load) {
   const [NotionClender, setNotionClender] = useState("");
   const [NotionTodo, setNotionTodo] = useState("");
-  let asdfasdf = 0;
   useEffect(() => {
-    return async () => {
-      console.log("load", asdfasdf);
-      if (asdfasdf != 0) {
+    if (load) {
+      (async () => {
         setNotionClender(await Api.NotionCalenderTodayGet());
         setNotionTodo(await Api.NotionTODOTodayGet());
-      } else {
-        asdfasdf = 1;
-      }
-      // schedule.scheduleJob(date, function () {
-      //   console.log("The world is going to end today.");
-      // });
-      // console.log(Api.NotionCalenderUpdate(to.results[1].id, false));
-    };
+      })();
+    }
   }, [load]);
+
   if (!load) {
     return;
   }

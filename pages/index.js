@@ -1,38 +1,56 @@
 import Head from "next/head";
 import { useState, useEffect } from "react";
-import Api from "./api/api";
-// import schedule from "node-schedule";
-import firstpage from "../modules/firstpage";
-import secondpage from "../modules/secondpage";
-import Three from "../modules/Three";
+import Api from "../modules/api";
+import firstpage from "./firstpage";
+import secondpage from "./secondpage";
+import Three from "./Three";
 
 export default function Hoem() {
   const [imglist, setimglist] = useState([]);
   const [load, setload] = useState(false);
   useEffect(() => {
-    return async () => {
+    (async () => {
+      if (!window) {
+        return;
+      }
       if (!localStorage.getItem("imglist")) {
-        localStorage.setItem("imglist", JSON.stringify([]));
+        localStorage.setItem(
+          "imglist",
+          JSON.stringify([
+            [
+              "https://unsplash.com/photos/Bkci_8qcdvQ/download?ixid=MnwzODAzMDd8MHwxfHJhbmRvbXx8fHx8fHx8fDE2NzAwNTQ1NDg",
+              "https://unsplash.com/photos/bBiuSdck8tU/download?ixid=MnwzODAzMDd8MHwxfHJhbmRvbXx8fHx8fHx8fDE2NzAwNTQ1NDg",
+              "https://unsplash.com/photos/049M_crau5k/download?ixid=MnwzODAzMDd8MHwxfHJhbmRvbXx8fHx8fHx8fDE2NzAwNTQ1NDg",
+            ],
+          ])
+        );
       }
       let temp = JSON.parse(localStorage.getItem("imglist"));
-      setimglist(temp[Math.floor(Math.random() * temp.length)]);
-      console.log("img load", temp);
-    };
+      setimglist(temp[random(0, temp.length - 1)]);
+    })();
   }, []);
+  function random(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
   async function imgrand() {
     let list = await Api.UnsplashgetItem();
     list = list.data.map((item) => {
       return item.links.download;
     });
     setimglist(list);
-    console.log(list);
   }
   async function imgsave() {
+    if (!window) {
+      return;
+    }
     let list = JSON.parse(localStorage.getItem("imglist"));
     list.push(imglist);
     localStorage.setItem("imglist", JSON.stringify(list));
   }
   async function imgdelete() {
+    if (!window) {
+      return;
+    }
     let list = JSON.parse(localStorage.getItem("imglist"));
     list = list.filter((item) => {
       return item != imglist;
@@ -40,9 +58,10 @@ export default function Hoem() {
     localStorage.setItem("imglist", JSON.stringify(list));
     setimglist([]);
   }
-  const handleScroll = (e) => {
+  const handleScroll = () => {
     setload(true);
   };
+
   return (
     <>
       <Head>
@@ -55,7 +74,7 @@ export default function Hoem() {
         <main
           className="background"
           style={{
-            backgroundImage: `url('${imglist[1]}')`,
+            backgroundImage: `url('${imglist[0]}')`,
           }}
         >
           <button onClick={imgrand} type="button" className="btn btn-dark">
@@ -69,6 +88,13 @@ export default function Hoem() {
           </button>
         </main>
       </div>
+      <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+        integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65"
+        crossOrigin="anonymous"
+      ></link>
+
       <style jsx global>
         {`
           body {
@@ -117,12 +143,6 @@ export default function Hoem() {
           }
         `}
       </style>
-      <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css"
-        rel="stylesheet"
-        integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65"
-        crossOrigin="anonymous"
-      ></link>
     </>
   );
 }

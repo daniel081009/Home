@@ -1,13 +1,12 @@
 import { useState, useEffect } from "react";
-import Api from "../pages/api/api";
+import Api from "../modules/api";
 import Image from "next/image";
 export default function Firstpage(backgroundurl) {
   const [time, setTime] = useState("");
   const [goodmsg, setgoodmsg] = useState("");
 
   let timeer = null;
-  function currentTime() {
-    const date = new Date();
+  function currentTime(date) {
     let hh = date.getHours();
     let mm = date.getMinutes();
     let ss = date.getSeconds();
@@ -20,12 +19,14 @@ export default function Firstpage(backgroundurl) {
     hh = hh < 10 ? "0" + hh : hh;
     mm = mm < 10 ? "0" + mm : mm;
     setTime(hh + ":" + mm + " " + session);
-    timeer = setTimeout(() => currentTime(), 60000 - ss * 1000);
+    timeer = setTimeout(() => currentTime(new Date()), 60000 - ss * 1000);
   }
+  useEffect(() => {
+    currentTime(new Date());
+  }, [currentTime]);
 
   useEffect(() => {
-    return async () => {
-      currentTime();
+    (async () => {
       if (
         localStorage.getItem("goodmsg") &&
         localStorage.getItem("goodmsg").length != 0 &&
@@ -38,10 +39,9 @@ export default function Firstpage(backgroundurl) {
         );
       } else {
         let list = await Api.NotionGoodMsgGet();
-        console.log(list.results);
         localStorage.setItem("goodmsg", JSON.stringify(list.results));
       }
-    };
+    })();
   }, []);
 
   return (
@@ -77,14 +77,15 @@ export default function Firstpage(backgroundurl) {
           font-family: "S-CoreDream-3Light";
           background-color: rgba(72, 72, 72, 0.5);
           border-radius: 1vh;
+          word-break: break-all;
         }
 
         .backgroundasdf {
-  position: fixed;
-  height: 100vh;
-  width: 100vw;
-  overflow: hidden;
-  z-index: -1;
+          position: fixed;
+          height: 100vh;
+          width: 100vw;
+          overflow: hidden;
+          z-index: -1;
         }
         }
       `}</style>
