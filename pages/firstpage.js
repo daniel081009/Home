@@ -71,6 +71,7 @@ export default function Firstpage(backgroundurl) {
           font-family: "SBAggroB";
         }
         h2 {
+          width : 40vw;
           font-size: 30px;
           font-weight: 400;
           margin: 20vw;
